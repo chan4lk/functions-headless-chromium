@@ -22,13 +22,13 @@ class Email {
             secureConnection: true, // Used for Office 365
             tls: { ciphers: 'SSLv3' }, // Used for Office 365
             auth: {
-                user: 'cranaweera@outlook.com', // Update username
-                pass: 'Ih@tethi5' // Update password
+                user: process.env.EMAIL_USER, // Update username
+                pass: process.env.EMAIL_PWD // Update password
             }
         });
 
         const mailOptions = {
-            from: 'cranaweera@outlook.com', // Update from email
+            from: process.env.EMAIL_USER, // Update from email
             to: to,
             subject: subject,
             text: text,
@@ -91,18 +91,18 @@ module.exports = async function (context, req) {
     }
 
 
-    Email.sendEmail('chan4lk@gmail.com', 'CIVIC_Hotspots', content, files);
+    Email.sendEmail(process.env.TO_EMAIL, 'CIVIC_Hotspots', content, files);
 
     await browser.close();
 
     
     var message = {
-        "personalizations": [ { "to": [ { "email": "chan4lk@gmail.com" } ] } ],
-       from: { email: "chan4lk@gmail.com" },        
-       subject: "Azure news",
+        "personalizations": [ { "to": [ { "email": process.env.TO_EMAIL } ] } ],
+       from: { email: process.env.EMAIL_USER },        
+       subject: "CIVIC_Hotspots",
        content: [{
            type: 'text/plain',
-           value: "abcd"
+           value: content
        }]
    };
 
