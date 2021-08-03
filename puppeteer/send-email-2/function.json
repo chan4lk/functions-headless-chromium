@@ -1,10 +1,10 @@
 {
   "bindings": [
     {
-      "schedule": "0 0 */12 * * *",
-      "name": "myTimer",
+      "schedule": "0 0 22 * * *",
+      "name": "GMT-10-12",
       "type": "timerTrigger",
       "direction": "in"
-  }
+    }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "bindings": [
+    {
+      "schedule": "0 0 15 * * *",
+      "name": "GMT-10-5",
+      "type": "timerTrigger",
+      "direction": "in"
+    }
+  ]
+}
