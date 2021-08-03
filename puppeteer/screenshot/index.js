@@ -1,8 +1,21 @@
 const puppeteer = require("puppeteer");
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+
+const file1 = 'Transmission venues of concern.csv';
+const file2 = 'NSW COVID-19 case locations.csv';
+const file3 = 'Public transport routes.csv';
+
+const content = `
+Please be cautious
+This email was sent from outside of Civic Disability Services
+________________________________
+
+Latest COVID-19 case locations and alerts in NSW
+`;
+
 class Email {
-    static sendEmail(to, subject, text, filename, fileContent) {
+    static sendEmail(to, subject, text, files) {
         const transporter = nodemailer.createTransport({
             host: 'smtp.office365.com',
             port: 587,
@@ -19,10 +32,7 @@ class Email {
             to: to,
             subject: subject,
             text: text,
-            attachments: [{
-                filename: filename,
-                content: fileContent
-            }]
+            attachments: files
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -51,22 +61,38 @@ module.exports = async function (context, req) {
         downloadPath: './folder/'
     });
 
-    page.on('response', async (response) => {
-        if (response.url()) {
-            console.info(JSON.stringify(response));
-            const buffer = await response.buffer();
-            // handle buffer
-        }
-    });
+    const files = [];
 
-    const [button] = await page.$x("//button[contains(., 'CSV')]");
+    const button = await page.$("#tbl-transmission_wrapper > div.dt-buttons > button.dt-button.buttons-csv.buttons-html5");
     if (button) {
         console.log("Found button");
         await button.click();
         await page.waitForTimeout(5000);
         const file = fs.readFileSync('./folder/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
-        Email.sendEmail('chan4lk@gmail.com', 'HOT_SPOTS', 'HOT_SPOTS', 'Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv', file);
+        files.push({filename: file1, content: file});
     }
+
+    const button2 = await page.$("#tbl-case-locations_wrapper > div.dt-buttons > button.dt-button.buttons-csv.buttons-html5");
+    if (button2) {
+        console.log("Found button");
+        await button2.click();
+        await page.waitForTimeout(5000);
+        const file = fs.readFileSync('./folder/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
+        files.push({filename: file2, content: file});
+    }
+
+    const button3 = await page.$("#tbl-casual-contacts-transport_wrapper > div.dt-buttons > button.dt-button.buttons-csv.buttons-html5");
+    if (button3) {
+        console.log("Found button");
+        await button3.click();
+        await page.waitForTimeout(5000);
+        const file = fs.readFileSync('./folder/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
+        files.push({filename: file3, content: file});
+    }
+
+
+    Email.sendEmail('chan4lk@gmail.com', 'CIVIC_Hotspots', content, files);
+
     await browser.close();
 
     
