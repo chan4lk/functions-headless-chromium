@@ -15,8 +15,7 @@ Latest COVID-19 case locations and alerts in NSW
 `;
 
 class Email {
-    static sendEmail(to, subject, text, files) {
-        console.log("auth", process.env.EMAIL_USER, process.env.EMAIL_PWD);
+    static sendEmail(to, subject, text, files, context) {
         const transporter = nodemailer.createTransport({
             host: 'smtp.office365.com',
             port: 587,
@@ -42,11 +41,13 @@ class Email {
             }
 
             console.log('Message sent: %s', info.messageId);
+
+            context.done()
         });
     }
 }
 
-module.exports = async function (context, req) {
+module.exports = async function (context, myTimer) {
     const url = "https://www.health.nsw.gov.au/Infectious/covid-19/Pages/case-locations-and-alerts.aspx";
 
     const browser = await puppeteer.launch({
@@ -96,15 +97,8 @@ module.exports = async function (context, req) {
     }
 
 
-    Email.sendEmail(process.env.TO_EMAIL, 'CIVIC_Hotspots', content, files);
+    Email.sendEmail(process.env.TO_EMAIL, 'CIVIC_Hotspots', content, files, context);
 
-    await browser.close();
-
+    await browser.close();   
     
-    context.res = {
-        body: content,
-        headers: {
-            "content-type": "text/plain"
-        }
-    };
 };
