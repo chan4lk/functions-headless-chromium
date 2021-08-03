@@ -7,3 +7,4 @@ test
 tsconfig.json
 node_modules
 folder
+package-lock.json

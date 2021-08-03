@@ -16,6 +16,7 @@ Latest COVID-19 case locations and alerts in NSW
 
 class Email {
     static sendEmail(to, subject, text, files) {
+        console.log("auth", process.env.EMAIL_USER, process.env.EMAIL_PWD);
         const transporter = nodemailer.createTransport({
             host: 'smtp.office365.com',
             port: 587,
@@ -48,7 +49,11 @@ class Email {
 module.exports = async function (context, req) {
     const url = "https://www.health.nsw.gov.au/Infectious/covid-19/Pages/case-locations-and-alerts.aspx";
 
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+      
     const page = await browser.newPage();
     
     await page.goto(url, { waitUntil: 'networkidle0',timeout: 0 });
@@ -58,7 +63,7 @@ module.exports = async function (context, req) {
 
     await page._client.send('Page.setDownloadBehavior', {
         behavior: 'allow',
-        downloadPath: './folder/'
+        downloadPath: '/home'
     });
 
     const files = [];
@@ -68,7 +73,7 @@ module.exports = async function (context, req) {
         console.log("Found button");
         await button.click();
         await page.waitForTimeout(5000);
-        const file = fs.readFileSync('./folder/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
+        const file = fs.readFileSync('/home/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
         files.push({filename: file1, content: file});
     }
 
@@ -77,7 +82,7 @@ module.exports = async function (context, req) {
         console.log("Found button");
         await button2.click();
         await page.waitForTimeout(5000);
-        const file = fs.readFileSync('./folder/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
+        const file = fs.readFileSync('/home/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
         files.push({filename: file2, content: file});
     }
 
@@ -86,7 +91,7 @@ module.exports = async function (context, req) {
         console.log("Found button");
         await button3.click();
         await page.waitForTimeout(5000);
-        const file = fs.readFileSync('./folder/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
+        const file = fs.readFileSync('/home/Latest COVID-19 case locations and alerts in NSW - COVID-19 (Coronavirus).csv');
         files.push({filename: file3, content: file});
     }
 
@@ -96,15 +101,10 @@ module.exports = async function (context, req) {
     await browser.close();
 
     
-    var message = {
-        "personalizations": [ { "to": [ { "email": process.env.TO_EMAIL } ] } ],
-       from: { email: process.env.EMAIL_USER },        
-       subject: "CIVIC_Hotspots",
-       content: [{
-           type: 'text/plain',
-           value: content
-       }]
-   };
-
-   context.done(null, {message});
+    context.res = {
+        body: content,
+        headers: {
+            "content-type": "text/plain"
+        }
+    };
 };
