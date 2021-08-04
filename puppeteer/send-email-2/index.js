@@ -97,7 +97,7 @@ module.exports = async function (context, myTimer) {
     }
 
 
-    Email.sendEmail(process.env.TO_EMAIL, 'CIVIC_Hotspots', content, files, context);
+    Email.sendEmail(process.env.TO_EMAIL2, 'CIVIC_Hotspots', content, files, context);
 
     await browser.close();   
     
